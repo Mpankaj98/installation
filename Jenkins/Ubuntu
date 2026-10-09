@@ -1,9 +1,46 @@
+#!/bin/bash
+
+# Step 1: Update package lists and upgrade installed packages
+sudo apt update -y
+sudo apt upgrade -y
+
+# Step 2: Install required dependencies
+sudo apt install -y fontconfig openjdk-21-jre wget curl gnupg
+
+# Step 3: Verify Java installation
+java -version
+
+# Step 4: Create a directory for APT signing keys
+sudo install -m 0755 -d /etc/apt/keyrings
+
+# Step 5: Download and save the Jenkins signing key
+sudo wget -O /etc/apt/keyrings/jenkins-keyring.asc \
+https://pkg.jenkins.io/debian-stable/jenkins.io-2026.key
+
+# Step 6: Add the Jenkins repository
+echo "deb [signed-by=/etc/apt/keyrings/jenkins-keyring.asc] https://pkg.jenkins.io/debian-stable binary/" | \
+sudo tee /etc/apt/sources.list.d/jenkins.list > /dev/null
+
+# Step 7: Update package lists after adding the repository
 sudo apt update
-sudo apt install -y openjdk-11-jre
-wget -q -O - https://pkg.jenkins.io/debian/jenkins.io.key | sudo apt-key add -
-sudo sh -c 'echo deb http://pkg.jenkins.io/debian-stable binary/ > /etc/apt/sources.list.d/jenkins.list'
+
+# Step 8: Install Jenkins
 sudo apt install -y jenkins
-sudo systemctl start jenkins
+
+# Step 9: Enable Jenkins to start automatically at boot
 sudo systemctl enable jenkins
-sudo systemctl status jenkins
+
+# Step 10: Start the Jenkins service
+sudo systemctl start jenkins
+
+# Step 11: Check Jenkins service status
+sudo systemctl status jenkins --no-pager
+
+# Step 12: Display the initial administrator password
 sudo cat /var/lib/jenkins/secrets/initialAdminPassword
+
+# Step 13: Check whether port 8080 is listening
+sudo ss -lntp | grep 8080
+
+# Step 14: View Jenkins logs if troubleshooting is needed
+sudo journalctl -u jenkins -xe
